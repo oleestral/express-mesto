@@ -37,10 +37,9 @@ module.exports.getUserById = (req, res) => {
           .status(ERROR_400)
           .send({ message: 'Нет пользователя по заданному id' });
       } else if (err.message === 'NotFound') {
-        res.status(
-          // eslint-disable-next-line comma-dangle
-          ERROR_404.send({ message: 'Нет пользователя по заданному id' })
-        );
+        res
+          .status(ERROR_404)
+          .send({ message: 'Нет пользователя по заданному id' });
       } else {
         res.status(ERROR_500).send({ message: 'Произошла ошибка' });
       }
@@ -68,10 +67,9 @@ module.exports.updateUserInfo = (req, res) => {
       } else if (err.name === 'ValidationError') {
         res.status(ERROR_400).send({ message: 'Данные некорректны' });
       } else if (err.message === 'NotFound') {
-        res.status(
-          // eslint-disable-next-line comma-dangle
-          ERROR_404.send({ message: 'Нет пользователя по заданному id' })
-        );
+        res
+          .status(ERROR_404)
+          .send({ message: 'Нет пользователя по заданному id' });
       } else {
         res.status(ERROR_500).send({ message: 'Произошла ошибка' });
       }
@@ -98,10 +96,9 @@ module.exports.updateAvatar = (req, res) => {
       } else if (err.name === 'ValidationError') {
         res.status(ERROR_400).send({ message: 'Данные некорректны' });
       } else if (err.message === 'NotFound') {
-        res.status(
-          // eslint-disable-next-line comma-dangle
-          ERROR_404.send({ message: 'Нет пользователя по заданному id' })
-        );
+        res
+          .status(ERROR_404)
+          .send({ message: 'Нет пользователя по заданному id' });
       } else {
         res.status(ERROR_500).send({ message: 'Произошла ошибка' });
       }
