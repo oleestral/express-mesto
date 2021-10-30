@@ -22,20 +22,27 @@ module.exports.createCard = (req, res) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(ERROR_400).send({ message: 'Ошибка при создании карточки' });
+      } else {
+        res.status(ERROR_500).send({ message: 'Произошла ошибка' });
       }
-      res.status(ERROR_500).send({ message: 'Произошла ошибка' });
     });
 };
 module.exports.deleteCard = (req, res) => {
   card
     .findByIdAndDelete(req.params.cardId)
-    .orFail(new Error('CastError'))
+    .orFail(new Error('NotFound'))
     .then((item) => res.send(item))
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(ERROR_404).send({ message: 'Нет карточки по заданному id' });
+        res.status(ERROR_400).send({ message: 'Нет карточки по заданному id' });
+      } else if (err.message === 'NotFound') {
+        res.status(
+          // eslint-disable-next-line comma-dangle
+          ERROR_404.send({ message: 'Нет карточки по заданному id' })
+        );
+      } else {
+        res.status(ERROR_500).send({ message: 'Произошла ошибка' });
       }
-      res.status(ERROR_500).send({ message: 'Произошла ошибка' });
     });
 };
 module.exports.like = (req, res) => {
@@ -48,16 +55,21 @@ module.exports.like = (req, res) => {
       // eslint-disable-next-line comma-dangle
       { new: true }
     )
-    .orFail(new Error('CastError'))
+    .orFail(new Error('NotFound'))
     .then((item) => res.send(item))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res.status(ERROR_400).send({ message: 'Некорректные данные' });
-      }
       if (err.name === 'CastError') {
-        res.status(ERROR_404).send({ message: 'Нет карточки по заданному id' });
+        res.status(ERROR_400).send({ message: 'Нет карточки по заданному id' });
+      } else if (err.name === 'ValidationError') {
+        res.status(ERROR_400).send({ message: 'Данные некорректны' });
+      } else if (err.message === 'NotFound') {
+        res.status(
+          // eslint-disable-next-line comma-dangle
+          ERROR_404.send({ message: 'Нет карточки по заданному id' })
+        );
+      } else {
+        res.status(ERROR_500).send({ message: 'Произошла ошибка' });
       }
-      res.status(ERROR_500).send({ message: 'Произошла ошибка' });
     });
 };
 module.exports.dislike = (req, res) => {
@@ -75,12 +87,17 @@ module.exports.dislike = (req, res) => {
       res.status(200).send(like);
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res.status(ERROR_400).send({ message: 'Некорректные данные' });
-      }
       if (err.name === 'CastError') {
-        res.status(ERROR_404).send({ message: 'Нет карточки по заданному id' });
+        res.status(ERROR_400).send({ message: 'Нет карточки по заданному id' });
+      } else if (err.name === 'ValidationError') {
+        res.status(ERROR_400).send({ message: 'Данные некорректны' });
+      } else if (err.message === 'NotFound') {
+        res.status(
+          // eslint-disable-next-line comma-dangle
+          ERROR_404.send({ message: 'Нет карточки по заданному id' })
+        );
+      } else {
+        res.status(ERROR_500).send({ message: 'Произошла ошибка' });
       }
-      res.status(ERROR_500).send({ message: 'Произошла ошибка' });
     });
 };

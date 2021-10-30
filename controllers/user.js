@@ -21,22 +21,29 @@ module.exports.createUser = (req, res) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(ERROR_400).send({ message: 'Некорректные данные' });
+      } else {
+        res.status(ERROR_500).send({ message: 'Произошла ошибка' });
       }
-      res.status(ERROR_500).send({ message: 'Произошла ошибка' });
     });
 };
 module.exports.getUserById = (req, res) => {
   user
     .findById(req.params.id)
-    .orFail(new Error('CastError'))
+    .orFail(new Error('NotFound'))
     .then((item) => res.send({ data: item }))
     .catch((err) => {
-      if (err.message === 'CastError') {
+      if (err.name === 'CastError') {
         res
-          .status(ERROR_404)
+          .status(ERROR_400)
           .send({ message: 'Нет пользователя по заданному id' });
+      } else if (err.message === 'NotFound') {
+        res.status(
+          // eslint-disable-next-line comma-dangle
+          ERROR_404.send({ message: 'Нет пользователя по заданному id' })
+        );
+      } else {
+        res.status(ERROR_500).send({ message: 'Произошла ошибка' });
       }
-      res.status(ERROR_500).send({ message: 'Произошла ошибка' });
     });
 };
 module.exports.updateUserInfo = (req, res) => {
@@ -51,18 +58,23 @@ module.exports.updateUserInfo = (req, res) => {
       // eslint-disable-next-line comma-dangle
       { new: true, runValidators: true }
     )
-    .orFail(new Error('CastError'))
+    .orFail(new Error('NotFound'))
     .then((item) => res.send({ data: item }))
     .catch((err) => {
       if (err.name === 'CastError') {
         res
-          .status(ERROR_404)
+          .status(ERROR_400)
           .send({ message: 'Нет пользователя по заданному id' });
-      }
-      if (err.name === 'ValidationError') {
+      } else if (err.name === 'ValidationError') {
         res.status(ERROR_400).send({ message: 'Данные некорректны' });
+      } else if (err.message === 'NotFound') {
+        res.status(
+          // eslint-disable-next-line comma-dangle
+          ERROR_404.send({ message: 'Нет пользователя по заданному id' })
+        );
+      } else {
+        res.status(ERROR_500).send({ message: 'Произошла ошибка' });
       }
-      res.status(ERROR_500).send({ message: 'Произошла ошибка' });
     });
 };
 module.exports.updateAvatar = (req, res) => {
@@ -76,17 +88,22 @@ module.exports.updateAvatar = (req, res) => {
       // eslint-disable-next-line comma-dangle
       { new: true, runValidators: true }
     )
-    .orFail(new Error('CastError'))
+    .orFail(new Error('NotFound'))
     .then((item) => res.send({ data: item }))
     .catch((err) => {
       if (err.name === 'CastError') {
         res
-          .status(ERROR_404)
+          .status(ERROR_400)
           .send({ message: 'Нет пользователя по заданному id' });
-      }
-      if (err.name === 'ValidationError') {
+      } else if (err.name === 'ValidationError') {
         res.status(ERROR_400).send({ message: 'Данные некорректны' });
+      } else if (err.message === 'NotFound') {
+        res.status(
+          // eslint-disable-next-line comma-dangle
+          ERROR_404.send({ message: 'Нет пользователя по заданному id' })
+        );
+      } else {
+        res.status(ERROR_500).send({ message: 'Произошла ошибка' });
       }
-      res.status(ERROR_500).send({ message: 'Произошла ошибка' });
     });
 };
