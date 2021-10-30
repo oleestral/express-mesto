@@ -19,10 +19,8 @@ module.exports.createUser = (req, res) => {
     })
     .then((item) => res.send(item))
     .catch((err) => {
-      if (err.name === 'SomeErrorName') {
-        res
-          .status(ERROR_400)
-          .send({ message: 'Ошибка при создании пользователя' });
+      if (err.name === 'ValidationError') {
+        res.status(ERROR_400).send({ message: 'Некорректные данные' });
       }
       res.status(ERROR_500).send({ message: 'Произошла ошибка' });
     });
@@ -30,10 +28,13 @@ module.exports.createUser = (req, res) => {
 module.exports.getUserById = (req, res) => {
   user
     .findById(req.params.id)
+    .orFail(new Error('CastError'))
     .then((item) => res.send({ data: item }))
     .catch((err) => {
-      if (err.name === 'SomeErrorName') {
-        res.status(ERROR_404).send({ message: 'Пользователь не найден' });
+      if (err.message === 'CastError') {
+        res
+          .status(ERROR_404)
+          .send({ message: 'Нет пользователя по заданному id' });
       }
       res.status(ERROR_500).send({ message: 'Произошла ошибка' });
     });
@@ -48,14 +49,17 @@ module.exports.updateUserInfo = (req, res) => {
         about,
       },
       // eslint-disable-next-line comma-dangle
-      { new: true }
+      { new: true, runValidators: true }
     )
+    .orFail(new Error('CastError'))
     .then((item) => res.send({ data: item }))
     .catch((err) => {
-      if (err.name === 'SomeErrorName') {
-        res.status(ERROR_404).send({ message: 'Пользователь не найден' });
+      if (err.name === 'CastError') {
+        res
+          .status(ERROR_404)
+          .send({ message: 'Нет пользователя по заданному id' });
       }
-      if (err.name === 'SomeErrorNameAnother') {
+      if (err.name === 'ValidationError') {
         res.status(ERROR_400).send({ message: 'Данные некорректны' });
       }
       res.status(ERROR_500).send({ message: 'Произошла ошибка' });
@@ -70,14 +74,17 @@ module.exports.updateAvatar = (req, res) => {
         avatar,
       },
       // eslint-disable-next-line comma-dangle
-      { new: true }
+      { new: true, runValidators: true }
     )
+    .orFail(new Error('CastError'))
     .then((item) => res.send({ data: item }))
     .catch((err) => {
-      if (err.name === 'SomeErrorName') {
-        res.status(ERROR_404).send({ message: 'Пользователь не найден' });
+      if (err.name === 'CastError') {
+        res
+          .status(ERROR_404)
+          .send({ message: 'Нет пользователя по заданному id' });
       }
-      if (err.name === 'SomeErrorNameAnother') {
+      if (err.name === 'ValidationError') {
         res.status(ERROR_400).send({ message: 'Данные некорректны' });
       }
       res.status(ERROR_500).send({ message: 'Произошла ошибка' });
