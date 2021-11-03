@@ -2,6 +2,7 @@ const express = require('express');
 
 const mongoose = require('mongoose');
 
+const { celebrate, Joi } = require('celebrate');
 const bodyParser = require('body-parser');
 const usersRouter = require('./routes/user');
 const cardsRouter = require('./routes/card');
@@ -18,16 +19,52 @@ mongoose.connect('mongodb://localhost:27017/mestodb');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.post('/signin', login);
-app.post('/signup', createUser);
+app.post(
+  '/signin',
+  celebrate({
+    body: Joi.object().keys({
+      email: Joi.string().email(),
+      password: Joi.string().required().min(8),
+    }),
+  }),
+  // eslint-disable-next-line comma-dangle
+  login
+);
+app.post(
+  '/signup',
+  celebrate({
+    body: Joi.object().keys({
+      email: Joi.string().email(),
+      password: Joi.string().required().min(8),
+      name: Joi.string().min(2).max(30),
+      about: Joi.string().min(2).max(30),
+      avatar: Joi.string().pattern(
+        // eslint-disable-next-line comma-dangle
+        /^((http|https):\/\/)?(www\.)?([A-Za-zА-Яа-я0-9]{1}[A-Za-zА-Яа-я0-9\\-]*\.?)*\.{1}[A-Za-zА-Яа-я0-9-]{2,8}(\/([\w#!:.?+=&%@!\-\\/])*)?/
+      ),
+    }),
+  }),
+  // eslint-disable-next-line comma-dangle
+  createUser
+);
 
 app.use(auth);
 app.use('/', usersRouter);
 app.use('/', cardsRouter);
-
 app.use((req, res, next) => {
   next(new NotFound('Ресурс не найден'));
 });
+app.use((err, req, res, next) => {
+  // если у ошибки нет статуса, выставляем 500
+  const { statusCode = 500, message } = err;
+
+  res.status(statusCode).send({
+    // проверяем статус и выставляем сообщение в зависимости от него
+    message: statusCode === 500 ? 'На сервере произошла ошибка' : message,
+  });
+  next();
+});
+
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
 });

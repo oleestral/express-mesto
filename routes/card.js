@@ -8,6 +8,7 @@ const {
   dislike,
 } = require('../controllers/card');
 
+cardRouter.get('/cards', getCards);
 cardRouter.post(
   '/cards',
   celebrate({
@@ -24,9 +25,36 @@ cardRouter.post(
   // eslint-disable-next-line comma-dangle
   createCard
 );
-cardRouter.get('/cards', getCards);
-cardRouter.delete('/cards/:cardId', deleteCard);
-cardRouter.put('/cards/:cardId/likes', like);
-cardRouter.delete('/cards/:cardId/likes', dislike);
+
+cardRouter.delete(
+  '/cards/:cardId',
+  celebrate({
+    params: Joi.object().keys({
+      cardId: Joi.string().length(24).hex(),
+    }),
+  }),
+  // eslint-disable-next-line comma-dangle
+  deleteCard
+);
+cardRouter.put(
+  '/cards/:cardId/likes',
+  celebrate({
+    params: Joi.object().keys({
+      cardId: Joi.string().length(24).hex(),
+    }),
+  }),
+  // eslint-disable-next-line comma-dangle
+  like
+);
+cardRouter.delete(
+  '/cards/:cardId/likes',
+  celebrate({
+    params: Joi.object().keys({
+      cardId: Joi.string().length(24).hex(),
+    }),
+  }),
+  // eslint-disable-next-line comma-dangle
+  dislike
+);
 
 module.exports = cardRouter;

@@ -12,7 +12,17 @@ const {
 
 userRouter.get('/users', getUsers);
 userRouter.get('/users/me', getCurrentUser);
-userRouter.get('/users/:id', getUserById);
+
+userRouter.get(
+  '/users/:id',
+  celebrate({
+    params: Joi.object().keys({
+      id: Joi.string().length(24).hex(),
+    }),
+  }),
+  // eslint-disable-next-line comma-dangle
+  getUserById
+);
 userRouter.patch(
   '/users/me',
   celebrate({
