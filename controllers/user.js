@@ -32,6 +32,12 @@ module.exports.createUser = (req, res, next) => {
       if (err.name === 'ValidationError') {
         next(new BadRequest(err.message));
       }
+      if (err.code === 11000) {
+        res.status(409).send({
+          message:
+            'Пользователь с таким email уже существует! Авторизируйтесь!',
+        });
+      }
     })
     .catch(next);
 };
@@ -107,13 +113,13 @@ module.exports.login = (req, res, next) => {
     .select('+password')
     .then((user) => {
       if (!user) {
-        throw new Unauthorized('Неправильные почта или пароль');
+        next(new Unauthorized('Неправильные почта или пароль'));
       }
       bcrypt
         .compare(password, user.password)
         .then((matched) => {
           if (!matched) {
-            return Promise.reject(new Error('Неправильные почта или пароль'));
+            next(new Error('Неправильные почта или пароль'));
           }
           const token = jwt.sign({ _id: user.id }, 'super-strong-secret', {
             expiresIn: '7d',
@@ -130,7 +136,7 @@ module.exports.getCurrentUser = (req, res, next) => {
   User.findById(req.user._id)
     .then((item) => {
       if (!item) {
-        throw new Error('Пользователь не найден');
+        next(new Error('Пользователь не найден'));
       }
       return res.status(200).send(item);
     })

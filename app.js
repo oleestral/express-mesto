@@ -2,7 +2,7 @@ const express = require('express');
 
 const mongoose = require('mongoose');
 
-const { celebrate, Joi } = require('celebrate');
+const { celebrate, Joi, errors } = require('celebrate');
 const bodyParser = require('body-parser');
 const usersRouter = require('./routes/user');
 const cardsRouter = require('./routes/card');
@@ -54,6 +54,7 @@ app.use('/', cardsRouter);
 app.use((req, res, next) => {
   next(new NotFound('Ресурс не найден'));
 });
+app.use(errors());
 app.use((err, req, res, next) => {
   // если у ошибки нет статуса, выставляем 500
   const { statusCode = 500, message } = err;
