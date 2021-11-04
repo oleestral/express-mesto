@@ -29,13 +29,16 @@ module.exports.createCard = (req, res, next) => {
 };
 module.exports.deleteCard = (req, res, next) => {
   card
-    .findByIdAndDelete(req.params.cardId)
+    .findById(req.params.cardId)
     .orFail(new Error('NotFound'))
-    .then((item) => res.send(item))
-    .catch((err) => {
-      if (req.user._id !== card.owner.toString()) {
+    .then((item) => {
+      if (req.user._id !== item.owner.toString()) {
         next(new Error('Нельзя удалять чужие посты!'));
       }
+      item.remove();
+      res.status(200).send({ message: 'Карточка успешно удалена!' });
+    })
+    .catch((err) => {
       if (err.name === 'CastError') {
         next(new BadRequest('Нет карточки по заданному id'));
       } else if (err.message === 'NotFound') {
