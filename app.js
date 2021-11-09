@@ -3,6 +3,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 
 const { celebrate, Joi, errors } = require('celebrate');
+const cors = require('cors');
 const bodyParser = require('body-parser');
 const usersRouter = require('./routes/user');
 const cardsRouter = require('./routes/card');
@@ -20,7 +21,19 @@ mongoose.connect('mongodb://localhost:27017/mestodb');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+const allowedCors = [
+  'https://oleestral.nomoredomains.work',
+  'http://oleestral.nomoredomains.work',
+  'localhost:3000',
+];
+
 app.use(requestLogger);
+
+app.get('/crash-test', () => {
+  setTimeout(() => {
+    throw new Error('Сервер сейчас упадёт');
+  }, 0);
+});
 
 app.post(
   '/signin',
