@@ -21,12 +21,6 @@ mongoose.connect('mongodb://localhost:27017/mestodb');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-const allowedCors = [
-  'https://oleestral.nomoredomains.work',
-  'http://oleestral.nomoredomains.work',
-  'localhost:3000',
-];
-
 app.use(requestLogger);
 
 app.get('/crash-test', () => {
