@@ -9,6 +9,7 @@ const cardsRouter = require('./routes/card');
 const { createUser, login } = require('./controllers/user');
 const auth = require('./middlewares/auth');
 const NotFound = require('./errors/NotFound');
+const { requestLogger, errorLogger } = require('./middlewares/logger');
 
 const { PORT = 3000 } = process.env;
 
@@ -18,6 +19,8 @@ const app = express();
 mongoose.connect('mongodb://localhost:27017/mestodb');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
+app.use(requestLogger);
 
 app.post(
   '/signin',
@@ -51,6 +54,7 @@ app.post(
 app.use(auth);
 app.use('/', usersRouter);
 app.use('/', cardsRouter);
+app.use(errorLogger);
 app.use((req, res, next) => {
   next(new NotFound('Ресурс не найден'));
 });
